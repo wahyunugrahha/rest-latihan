@@ -6,9 +6,10 @@ import bcrypt from "bcrypt";
 
 const register = async (request) => {
   const user = validate(registerUserValidation, request);
-
   const countUser = await prismaClient.user.count({
-    where: user.username,
+    where: {
+      username: user.username,
+    },
   });
   if (countUser > 0) {
     throw new ResponseError(400, "Username Already Exist");
