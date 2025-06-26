@@ -102,3 +102,33 @@ describe("POST /api/users/login", function () {
     expect(result.body.errors).toBeDefined();
   });
 });
+
+describe("GET /api/users/current", function () {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should can get current user", async () => {
+    const result = await supertest(web)
+      .get("/api/users/current")
+      .set("Authorization", "token");
+
+    console.log(result.body);
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBe("test");
+    expect(result.body.data.name).toBe("testuser");
+  });
+
+  it("should reject if token is invalid", async () => {
+    const result = await supertest(web)
+      .get("/api/users/current")
+      .set("Authorization", "wrongtoken");
+
+    expect(result.status).toBe(401);
+    expect(result.body.errors).toBeDefined();
+  });
+});
