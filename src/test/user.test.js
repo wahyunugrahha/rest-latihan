@@ -24,7 +24,6 @@ describe("POST /api/users", function () {
       password: "",
       name: "",
     });
-    console.log(result.body);
     expect(result.status).toBe(400);
     expect(result.body.errors).toBeDefined();
   });
@@ -66,7 +65,6 @@ describe("POST /api/users/login", function () {
       password: "testpassword",
     });
 
-    console.log(result.body);
     expect(result.status).toBe(200);
     expect(result.body.data.token).toBeDefined();
     expect(result.body.data.token).not.toBe("token");
@@ -117,7 +115,6 @@ describe("GET /api/users/current", function () {
       .get("/api/users/current")
       .set("Authorization", "token");
 
-    console.log(result.body);
     expect(result.status).toBe(200);
     expect(result.body.data.username).toBe("test");
     expect(result.body.data.name).toBe("testuser");
@@ -131,4 +128,72 @@ describe("GET /api/users/current", function () {
     expect(result.status).toBe(401);
     expect(result.body.errors).toBeDefined();
   });
+});
+
+describe("PATCH /api/users/current", function () {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should update current user", async () => {
+    const result = await supertest(web)
+      .patch("/api/users/current")
+      .set("Authorization", "token")
+      .send({
+        name: "Updated User",
+        password: "newpassword",
+      });
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBe("testuser");
+    expect(result.body.data.name).toBe("Updated User");
+
+    const user = getTestUser();
+    expect(await bcrypt.compare("newpassword", (await user).password)).toBe(
+      true
+    );
+  });
+
+  // it("should update current user name", async () => {
+  //   const result = await supertest(web)
+  //     .patch("/api/users/current")
+  //     .set("Authorization", "token")
+  //     .send({
+  //       name: "Updated User",
+  //     });
+
+  //   expect(result.status).toBe(200);
+  //   expect(result.body.data.username).toBe("testuser");
+  //   expect(result.body.data.name).toBe("Updated User");
+  // });
+
+  // it("should update current user password", async () => {
+  //   const result = await supertest(web)
+  //     .patch("/api/users/current")
+  //     .set("Authorization", "token")
+  //     .send({
+  //       password: "newpassword",
+  //     });
+
+  //   expect(result.status).toBe(200);
+  //   expect(result.body.data.username).toBe("testuser");
+  //   expect(result.body.data.name).toBe("testuser");
+
+  //   const user = getTestUser();
+  //   expect(await bcrypt.compare("newpassword", (await user).password)).toBe(
+  //     true
+  //   );
+  // });
+
+  // it("should reject if request is invalid", async () => {
+  //   const result = await supertest(web)
+  //     .patch("/api/users/current")
+  //     .set("Authorization", "invalidtoken")
+  //     .send({});
+  //   expect(result.status).toBe(401);
+  // });
 });
