@@ -37,14 +37,14 @@ const update = async (req, res, next) => {
   try {
     const username = req.user.username;
     const request = req.body;
-    request.usermame = username;
+    request.username = username;
 
     const result = await userService.update(request);
     res.status(200).json({
       data: result,
     });
   } catch (e) {
-    next;
+    next(e);
   }
 };
 
