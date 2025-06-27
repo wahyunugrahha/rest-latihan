@@ -11,7 +11,7 @@ export const removeTestUser = async () => {
 export const getTestUser = async () => {
   return prismaClient.user.findUnique({
     where: {
-      username: "testuser",
+      username: "test",
     },
   });
 };

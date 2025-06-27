@@ -166,7 +166,7 @@ describe("PATCH /api/users/current", function () {
       .send({
         name: "Updated User",
       });
-
+    console.log(result.body);
     expect(result.status).toBe(200);
     expect(result.body.data.username).toBe("test");
     expect(result.body.data.name).toBe("Updated User");
