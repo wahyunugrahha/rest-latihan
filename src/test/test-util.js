@@ -26,3 +26,12 @@ export const createTestUser = async () => {
     },
   });
 };
+
+
+export const removeAllTestContact = async () => {
+  await prismaClient.contact.deleteMany({
+    where: {
+      username: "test",
+    },
+  });
+};

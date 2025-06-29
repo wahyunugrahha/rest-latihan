@@ -198,6 +198,7 @@ describe("PATCH /api/users/current", function () {
     expect(result.status).toBe(401);
   });
 });
+
 describe("DELETE /api/user/logout", function () {
   beforeEach(async () => {
     await createTestUser();
