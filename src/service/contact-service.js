@@ -2,7 +2,7 @@ import { prismaClient } from "../application/database.js";
 import { createContactValiidation } from "../validation/contact-validation.js";
 import { validate } from "../validation/validaton.js";
 
-const create = async (request) => {
+const create = async (user, request) => {
   const contact = validate(createContactValiidation, request);
   contact.username = user.username;
 

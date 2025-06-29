@@ -5,4 +5,6 @@ const createContactValiidation = Joi.object({
   last_name: Joi.string().max(100).optional(),
   email: Joi.string().max(100).email().optional(),
   phone: Joi.string().max(20).optional(),
-})
+});
+
+export { createContactValiidation };
