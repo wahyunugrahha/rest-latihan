@@ -29,7 +29,7 @@ const get = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const user = req.user;
-    const contactId = req.params.contact;
+    const contactId = req.params.contactId;
     const request = req.body;
     request.id = contactId;
 
