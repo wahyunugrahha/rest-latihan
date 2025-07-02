@@ -1,10 +1,12 @@
 import supertest from "supertest";
 import { web } from "../application/web.js";
 import {
-  createTestUser,
   createTestContact,
-  removeAllTestContact,
+  createTestUser,
+  getTestContact,
   removeAllTestAddresses,
+  removeAllTestContact,
+  removeTestUser,
 } from "./test-util";
 
 describe("POST /api/contacts/:contactId/addresses", function () {
@@ -30,16 +32,17 @@ describe("POST /api/contacts/:contactId/addresses", function () {
         city: "city",
         province: "province",
         country: "indonesia",
-        postalCode: "31923",
+        postal_code: "31923",
       });
 
+    console.log(result.body);
     expect(result.status).toBe(200);
     expect(result.body.data.id).toBeDefined();
     expect(result.body.data.street).toBe("teststreet");
     expect(result.body.data.city).toBe("city");
     expect(result.body.data.province).toBe("province");
     expect(result.body.data.country).toBe("indonesia");
-    expect(result.body.data.postalCode).toBe("31923");
+    expect(result.body.data.postal_code).toBe("31923");
   });
 
   it("Should reject if invalid address", async () => {
