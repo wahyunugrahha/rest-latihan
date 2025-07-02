@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import { web } from "../src/application/web.js";
+import { web } from "../application/web.js";
 import {
   createTestUser,
   createTestContact,

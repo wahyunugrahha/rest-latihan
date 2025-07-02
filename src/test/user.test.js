@@ -227,6 +227,3 @@ describe("DELETE /api/user/logout", function () {
     expect(result.status).toBe(401);
   });
 });
-afterAll(async () => {
-  await prismaClient.$disconnect();
-});
