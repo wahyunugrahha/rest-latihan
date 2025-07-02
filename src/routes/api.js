@@ -14,11 +14,11 @@ userRouter.delete("/api/users/logout", userController.logout);
 
 //Contact Api
 userRouter.post("/api/contacts", contactController.create);
-userRouter.get("/api/contacts/:contactId", contactController.get);
-userRouter.put("/api/contacts/:contactId", contactController.update);
-userRouter.delete("/api/contacts/:contactId", contactController.remove);
+userRouter.get("/api/contacts/:contact_id", contactController.get);
+userRouter.put("/api/contacts/:contact_id", contactController.update);
+userRouter.delete("/api/contacts/:contact_id", contactController.remove);
 userRouter.get("/api/contacts/", contactController.search);
 export { userRouter };
 
 //Address API
-userRouter.post("/api/contacts/:contactId/addresses", addressController.create);
+userRouter.post("/api/contacts/:contact_id/addresses", addressController.create);

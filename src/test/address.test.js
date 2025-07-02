@@ -9,7 +9,7 @@ import {
   removeTestUser,
 } from "./test-util";
 
-describe("POST /api/contacts/:contactId/addresses", function () {
+describe("POST /api/contacts/:contact_id/addresses", function () {
   beforeEach(async () => {
     await createTestUser();
     await createTestContact();

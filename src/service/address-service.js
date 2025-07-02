@@ -1,14 +1,15 @@
 import { validate } from "../validation/validaton.js";
 import { getContactValidation } from "../validation/contact-validation";
-import { createaAddressValidation } from "../validation/address-validation";
+import { createAddresValidation } from "../validation/address-validation";
 import { prismaClient } from "../application/database.js";
+import { ResponseError } from "../error/response-error.js";
 
-const checkContactMustExist = async (user, contactId) => {
-  contactId = validate(getContactValidation, contactId);
+const checkContactMustExist = async (user, contact_id) => {
+  contact_id = validate(getContactValidation, contact_id);
   const totalContactInDatabase = await prismaClient.contact.count({
     where: {
       username: user.username,
-      id: contactId,
+      id: contact_id,
     },
   });
 
@@ -16,15 +17,15 @@ const checkContactMustExist = async (user, contactId) => {
     throw new ResponseError(404, "Contact Not Found");
   }
 
-  return contactId;
+  return contact_id;
 };
 
-const create = async (user, contactId, request) => {
-  contactId = await checkContactMustExist(user, contactId);
-  const address = validate(createaAddressValidation, request);
-  address.contactId = contactId;
+const create = async (user, contact_id, request) => {
+  contact_id = await checkContactMustExist(user, contact_id);
+  const address = validate(createAddresValidation, request);
+  address.contact_id = contact_id;
 
-  request = validate(createaAddressValidation, request);
+  request = validate(createAddresValidation, request);
 
   return prismaClient.address.create({
     data: address,

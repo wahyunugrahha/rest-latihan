@@ -16,8 +16,8 @@ const create = async (req, res, next) => {
 const get = async (req, res, next) => {
   try {
     const user = req.user;
-    const contactId = req.params.contactId;
-    const result = await contactService.get(user, contactId);
+    const contact_id = req.params.contact_id;
+    const result = await contactService.get(user, contact_id);
     res.status(200).json({
       data: result,
     });
@@ -29,9 +29,9 @@ const get = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const user = req.user;
-    const contactId = req.params.contactId;
+    const contact_id = req.params.contact_id;
     const request = req.body;
-    request.id = contactId;
+    request.id = contact_id;
 
     const result = await contactService.update(user, request);
 
@@ -46,9 +46,9 @@ const update = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     const user = req.user;
-    const contactId = req.params.contactId;
+    const contact_id = req.params.contact_id;
 
-    await contactService.remove(user, contactId);
+    await contactService.remove(user, contact_id);
     res.status(200).json({
       data: "OK",
     });

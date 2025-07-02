@@ -24,12 +24,12 @@ const create = async (user, request) => {
   });
 };
 
-const get = async (user, contactId) => {
-  contactId = validate(getContactValidation, contactId);
+const get = async (user, contact_id) => {
+  contact_id = validate(getContactValidation, contact_id);
   const contact = await prismaClient.contact.findFirst({
     where: {
       username: user.username,
-      id: contactId,
+      id: contact_id,
     },
     select: {
       id: true,
@@ -80,13 +80,13 @@ const update = async (user, request) => {
   });
 };
 
-const remove = async (user, contactId) => {
-  contactId = validate(getContactValidation, contactId);
+const remove = async (user, contact_id) => {
+  contact_id = validate(getContactValidation, contact_id);
 
   const totalContactInDatabase = await prismaClient.contact.findFirst({
     where: {
       username: user.username,
-      id: contactId,
+      id: contact_id,
     },
   });
 
@@ -95,7 +95,7 @@ const remove = async (user, contactId) => {
   }
   return prismaClient.contact.delete({
     where: {
-      id: contactId,
+      id: contact_id,
     },
   });
 };

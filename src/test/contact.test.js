@@ -47,7 +47,7 @@ describe("POST /api/contacts", function () {
     expect(result.status).toBe(401);
   });
 });
-describe("POST /api/contacts/:contactId", function () {
+describe("POST /api/contacts/:contact_id", function () {
   beforeEach(async () => {
     await createTestUser();
     await createTestContact();
@@ -83,7 +83,7 @@ describe("POST /api/contacts/:contactId", function () {
   });
 });
 
-describe("PUT /api/contacts/:contactId", function () {
+describe("PUT /api/contacts/:contact_id", function () {
   beforeEach(async () => {
     await createTestUser();
     await createTestContact();
@@ -145,7 +145,7 @@ describe("PUT /api/contacts/:contactId", function () {
   });
 });
 
-describe("DELETE /api/contacts/:contactId", function () {
+describe("DELETE /api/contacts/:contact_id", function () {
   beforeEach(async () => {
     await createTestUser();
     await createTestContact();
