@@ -40,6 +40,32 @@ const create = async (user, contact_id, request) => {
   });
 };
 
+const get = async (user, contactId, addressId) => {
+  contactId = await checkContactMustExist(user, contactId);
+  addressId = validate(getContactValidation, contactId);
+
+  const address = await prismaClient.address.findFirst({
+    where: {
+      contact_id: contactId,
+      id: addressId,
+    },
+    select: {
+      id: true,
+      street: true,
+      city: true,
+      province: true,
+      country: true,
+      postal_code: true,
+    },
+  });
+
+  if (!address) {
+    new ResponseError(404, "Address not Found");
+  }
+
+  return address;
+};
 export default {
   create,
+  get,
 };

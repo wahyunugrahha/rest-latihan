@@ -21,4 +21,11 @@ userRouter.get("/api/contacts/", contactController.search);
 export { userRouter };
 
 //Address API
-userRouter.post("/api/contacts/:contact_id/addresses", addressController.create);
+userRouter.post(
+  "/api/contacts/:contact_id/addresses",
+  addressController.create
+);
+userRouter.get(
+  "/api/contacts/:contact_id/addresses/:addressesId",
+  addressController.get
+);
