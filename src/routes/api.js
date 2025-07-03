@@ -26,6 +26,6 @@ userRouter.post(
   addressController.create
 );
 userRouter.get(
-  "/api/contacts/:contact_id/addresses/:addressesId",
+  "/api/contacts/:contact_id/addresses/:addressId",
   addressController.get
 );

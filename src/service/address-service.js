@@ -1,6 +1,6 @@
 import { validate } from "../validation/validaton.js";
 import { getContactValidation } from "../validation/contact-validation";
-import { createAddresValidation } from "../validation/address-validation";
+import { createAddresValidation, getAddressValidation } from "../validation/address-validation";
 import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../error/response-error.js";
 
@@ -25,8 +25,6 @@ const create = async (user, contact_id, request) => {
   const address = validate(createAddresValidation, request);
   address.contact_id = contact_id;
 
-  request = validate(createAddresValidation, request);
-
   return prismaClient.address.create({
     data: address,
     select: {
@@ -42,7 +40,7 @@ const create = async (user, contact_id, request) => {
 
 const get = async (user, contactId, addressId) => {
   contactId = await checkContactMustExist(user, contactId);
-  addressId = validate(getContactValidation, contactId);
+  addressId = validate(getAddressValidation, contactId);
 
   const address = await prismaClient.address.findFirst({
     where: {
@@ -60,7 +58,7 @@ const get = async (user, contactId, addressId) => {
   });
 
   if (!address) {
-    new ResponseError(404, "Address not Found");
+   throw new ResponseError(404, "Address not Found");
   }
 
   return address;
