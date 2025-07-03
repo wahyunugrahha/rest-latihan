@@ -40,7 +40,7 @@ const create = async (user, contact_id, request) => {
 
 const get = async (user, contactId, addressId) => {
   contactId = await checkContactMustExist(user, contactId);
-  addressId = validate(getAddressValidation, contactId);
+  addressId = validate(getAddressValidation, addressId);
 
   const address = await prismaClient.address.findFirst({
     where: {
