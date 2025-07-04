@@ -118,3 +118,95 @@ describe("GET /api/contacts/:contactId/addresses/:addressId", function () {
     expect(result.status).toBe(404);
   });
 });
+describe("PUT /api/contacts/:contactId/addresses/:addressId", function () {
+  beforeEach(async () => {
+    await createTestUser();
+    await createTestContact();
+    await createTestAddress();
+  });
+  afterEach(async () => {
+    await removeAllTestAddresses();
+    await removeAllTestContact();
+    await removeTestUser();
+  });
+
+  it("Should can update address", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .put("/api/contacts/" + testContact.id + "/addresses/" + testAddress.id)
+      .set("Authorization", "token")
+      .send({
+        street: "updatestreet",
+        city: "updatecity",
+        province: "updateprovince",
+        country: "updatecountry",
+        postal_code: "10000",
+      });
+    console.log(result.body);
+    expect(result.status).toBe(200);
+    expect(result.body.data.id).toBeDefined();
+    expect(result.body.data.street).toBe("updatestreet");
+    expect(result.body.data.city).toBe("updatecity");
+    expect(result.body.data.province).toBe("updateprovince");
+    expect(result.body.data.country).toBe("updatecountry");
+    expect(result.body.data.postal_code).toBe("10000");
+  });
+
+  it("Should reject if input is invalid", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .put("/api/contacts/" + testContact.id + "/addresses/" + testAddress.id)
+      .set("Authorization", "token")
+      .send({
+        street: "updatestreet",
+        city: "updatecity",
+        province: "updateprovince",
+        country: "",
+        postal_code: "",
+      });
+    console.log(result.body);
+    expect(result.status).toBe(400);
+  });
+  it("Should reject if address id is not found", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .put(
+        "/api/contacts/" + testContact.id + "/addresses/" + (testAddress.id + 1)
+      )
+      .set("Authorization", "token")
+      .send({
+        street: "updatestreet",
+        city: "updatecity",
+        province: "updateprovince",
+        country: "updatecountry",
+        postal_code: "10000",
+      });
+
+    expect(result.status).toBe(404);
+  });
+  it("Should reject if contact id is not found", async () => {
+    const testContact = await getTestContact();
+    const testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .put(
+        "/api/contacts/" + (testContact.id + 1) + "/addresses/" + testAddress.id
+      )
+      .set("Authorization", "token")
+      .send({
+        street: "updatestreet",
+        city: "updatecity",
+        province: "updateprovince",
+        country: "updatecountry",
+        postal_code: "10000",
+      });
+
+    expect(result.status).toBe(404);
+  });
+});

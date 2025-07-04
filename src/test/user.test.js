@@ -2,6 +2,7 @@ import supertest from "supertest";
 import { web } from "../application/web.js";
 import { createTestUser, removeTestUser, getTestUser } from "./test-util.js";
 import bcrypt from "bcrypt";
+
 describe("POST /api/users", function () {
   afterEach(async () => {
     await removeTestUser();

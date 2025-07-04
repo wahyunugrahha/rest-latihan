@@ -29,3 +29,7 @@ userRouter.get(
   "/api/contacts/:contact_id/addresses/:addressId",
   addressController.get
 );
+userRouter.put(
+  "/api/contacts/:contact_id/addresses/:addressId",
+  addressController.update
+);
