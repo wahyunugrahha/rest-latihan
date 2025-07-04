@@ -37,4 +37,4 @@ userRouter.delete(
   "/api/contacts/:contact_id/addresses/:addressId",
   addressController.remove
 );
-userRouter.get("/api/contacts/:contactId/addresses", addressController.list);
+userRouter.get("/api/contacts/:contact_id/addresses", addressController.list);

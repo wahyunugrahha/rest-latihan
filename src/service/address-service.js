@@ -122,8 +122,9 @@ const remove = async (user, contactId, addressId) => {
       id: addressId,
     },
   });
-  F;
 };
+
+
 const list = async (user, contactId) => {
   contactId = await checkContactMustExist(user, contactId);
 
