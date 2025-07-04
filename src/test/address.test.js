@@ -210,3 +210,55 @@ describe("PUT /api/contacts/:contactId/addresses/:addressId", function () {
     expect(result.status).toBe(404);
   });
 });
+describe("DELETE /api/contacts/:contactId/addresses/addressId", function () {
+  beforeEach(async () => {
+    await createTestUser();
+    await createTestContact();
+    await createTestAddress();
+  });
+  afterEach(async () => {
+    await removeAllTestAddresses();
+    await removeAllTestContact();
+    await removeTestUser();
+  });
+
+  it("Should can remove address", async () => {
+    const testContact = await getTestContact();
+    let testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .delete(
+        "/api/contacts/" + testContact.id + "/addresses/" + testAddress.id
+      )
+      .set("Authorization", "token");
+    console.log(result.body);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data).toBe("OK");
+    testAddress = await getTestAddress();
+    expect(testAddress).toBeNull();
+  });
+  it("Should reject if address not found", async () => {
+    const testContact = await getTestContact();
+    let testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .delete(
+        "/api/contacts/" + testContact.id + "/addresses/" + (testAddress.id + 1)
+      )
+      .set("Authorization", "token");
+    expect(result.status).toBe(404);
+  });
+
+  it("Should reject if contact not found", async () => {
+    const testContact = await getTestContact();
+    let testAddress = await getTestAddress();
+
+    const result = await supertest(web)
+      .delete(
+        "/api/contacts/" + (testContact.id + 1) + "/addresses/" + testAddress.id
+      )
+      .set("Authorization", "token");
+    expect(result.status).toBe(404);
+  });
+});

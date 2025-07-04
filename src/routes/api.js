@@ -33,3 +33,8 @@ userRouter.put(
   "/api/contacts/:contact_id/addresses/:addressId",
   addressController.update
 );
+userRouter.delete(
+  "/api/contacts/:contact_id/addresses/:addressId",
+  addressController.remove
+);
+
