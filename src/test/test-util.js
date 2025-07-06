@@ -1,5 +1,8 @@
 import { prismaClient } from "../application/database.js";
 import bcrypt from "bcrypt";
+import supertest from "supertest";
+import { web } from "../application/web.js";
+
 export const removeTestUser = async () => {
   await prismaClient.user.deleteMany({
     where: {
@@ -22,7 +25,6 @@ export const createTestUser = async () => {
       username: "test",
       password: await bcrypt.hash("testpassword", 10),
       name: "testuser",
-      token: "token",
     },
   });
 };
@@ -99,4 +101,15 @@ export const getTestAddress = async () => {
       },
     },
   });
+};
+
+export const getAuthToken = async () => {
+  const loginResult = await supertest(web).post("/api/users/login").send({
+    username: "test",
+    password: "testpassword",
+  });
+  if (loginResult.status !== 200) {
+    throw new Error("Failed to login and get token for tests");
+  }
+  return loginResult.body.data.token;
 };
