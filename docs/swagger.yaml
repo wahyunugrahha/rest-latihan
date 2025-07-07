@@ -1,0 +1,967 @@
+openapi: 3.0.0
+info:
+  title: RESTful API Express
+  version: 1.0.0
+  description: Dokumentasi API untuk project RESTful API Express
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+tags:
+  - name: User
+    description: User authentication and profile management
+  - name: Contact
+    description: Contact management
+  - name: Address
+    description: Address management for contacts
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: string
+          example: 'Validation Error: "username" is required'
+
+    UserRegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+        - name
+      properties:
+        username:
+          type: string
+          maxLength: 255
+          example: john.doe
+        password:
+          type: string
+          minLength: 6
+          maxLength: 255
+          example: rahasia123
+        name:
+          type: string
+          maxLength: 255
+          example: John Doe
+
+    UserLoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          maxLength: 255
+          example: john.doe
+        password:
+          type: string
+          minLength: 6
+          maxLength: 255
+          example: rahasia123
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          minLength: 6
+          maxLength: 255
+          example: passwordbaru
+        name:
+          type: string
+          maxLength: 255
+          example: Johnathan Doe
+
+    ContactCreateRequest:
+      type: object
+      required:
+        - firstName
+      properties:
+        firstName:
+          type: string
+          maxLength: 255
+        lastName:
+          type: string
+          maxLength: 255
+          nullable: true
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          nullable: true
+        phone:
+          type: string
+          maxLength: 255
+          nullable: true
+
+    ContactUpdateRequest:
+      type: object
+      required:
+        - id
+        - firstName
+      properties:
+        id:
+          type: integer
+          format: int32
+        firstName:
+          type: string
+          maxLength: 255
+        lastName:
+          type: string
+          maxLength: 255
+          nullable: true
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          nullable: true
+        phone:
+          type: string
+          maxLength: 255
+          nullable: true
+
+    ContactResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+
+    AddressCreateRequest:
+      type: object
+      required:
+        - country
+        - postalCode
+      properties:
+        street:
+          type: string
+          maxLength: 255
+          nullable: true
+        city:
+          type: string
+          maxLength: 255
+          nullable: true
+        province:
+          type: string
+          maxLength: 255
+          nullable: true
+        country:
+          type: string
+          maxLength: 100
+        postalCode:
+          type: string
+          maxLength: 20
+
+    AddressUpdateRequest:
+      type: object
+      required:
+        - id
+        - country
+        - postalCode
+      properties:
+        id:
+          type: integer
+        street:
+          type: string
+          maxLength: 255
+          nullable: true
+        city:
+          type: string
+          maxLength: 255
+          nullable: true
+        province:
+          type: string
+          maxLength: 255
+          nullable: true
+        country:
+          type: string
+          maxLength: 100
+        postalCode:aopenapi: 3.0.0
+info:
+  title: RESTful API Express
+  version: 1.0.0
+  description: Dokumentasi API untuk project RESTful API Express
+
+servers:
+  - url: http://localhost:3000 # Base URL tanpa /api karena sudah di rute
+    description: Development server
+
+tags:
+  - name: User
+    description: User authentication and profile management
+  - name: Contact
+    description: Contact management
+  - name: Address
+    description: Address management for contacts
+
+paths:
+  /api/users: # Ditambahkan /api
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username: # Respons register mengembalikan username dan name
+                        type: string
+                        example: test
+                      name:
+                        type: string
+                        example: test user
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/login: # Ditambahkan /api
+    post:
+      tags:
+        - User
+      summary: User login
+      # security: [] # Dihapus security karena ini public route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username: # Respons login mengembalikan username dan token
+                        type: string
+                        example: test
+                      token:
+                        type: string
+                        description: JWT token for authentication
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE2NzgyOTQ0MDAsImV4cCI6MTY3ODI5ODAwMH0.example_token_string
+                  # paging: # Paging tidak ada di respons login
+        '401':
+          description: Unauthorized (invalid username or password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/current: # Ditambahkan /api
+    get:
+      tags:
+        - User
+      summary: Get current user
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      responses:
+        '200':
+          description: Current user data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username: # Respons get user mengembalikan username dan name
+                        type: string
+                        example: test
+                      name:
+                        type: string
+                        example: testuser
+                  # paging: # Paging tidak ada di respons get user
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+        - User
+      summary: Update current user
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username: # Respons update user mengembalikan username dan name
+                        type: string
+                        example: test
+                      name:
+                        type: string
+                        example: Updated User
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - User
+      summary: Logout current user
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      responses:
+        '200':
+          description: User logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: OK
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts: # Ditambahkan /api
+    post:
+      tags:
+        - Contact
+      summary: Create a new contact
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreateRequest'
+      responses:
+        '200':
+          description: Contact created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactResponse' # Menggunakan skema ContactResponse
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Contact
+      summary: Search contacts
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Search by first_name or last_name
+        - in: query
+          name: email
+          schema:
+            type: string
+          description: Search by email
+        - in: query
+          name: phone
+          schema:
+            type: string
+          description: Search by phone number
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+      responses:
+        '200':
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContactResponse' # Menggunakan skema ContactResponse
+                  paging:
+                    type: object
+                    properties:
+                      page: # Nama field di paging adalah 'page'
+                        type: integer
+                        example: 1
+                      total_item:
+                        type: integer
+                        example: 15
+                      total_page:
+                        type: integer
+                        example: 2
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts/{contact_id}: # Ditambahkan /api dan diubah {contactId} menjadi {contact_id}
+    get:
+      tags:
+        - Contact
+      summary: Get contact by ID
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact to retrieve
+      responses:
+        '200':
+          description: Contact details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactResponse' # Menggunakan skema ContactResponse
+                  # paging: # Paging tidak ada di respons get contact by ID
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Contact
+      summary: Update contact by ID
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactUpdateRequest'
+      responses:
+        '200':
+          description: Contact updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactResponse' # Menggunakan skema ContactResponse
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Contact
+      summary: Delete contact by ID
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact to delete
+      responses:
+        '200':
+          description: Contact deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: OK
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts/{contact_id}/addresses: # Ditambahkan /api dan diubah {contactId} menjadi {contact_id}
+    post:
+      tags:
+        - Address
+      summary: Create a new address for a contact
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact to add address to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressCreateRequest'
+      responses:
+        '200':
+          description: Address created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AddressResponse' # Menggunakan skema AddressResponse
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Address
+      summary: Get all addresses for a contact
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact to retrieve addresses from
+      responses:
+        '200':
+          description: List of addresses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse' # Menggunakan skema AddressResponse
+                  # paging: # Paging tidak ada di respons list addresses
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts/{contact_id}/addresses/{addressId}: # Ditambahkan /api dan diubah {contactId} menjadi {contact_id}
+    get:
+      tags:
+        - Address
+      summary: Get address by ID for a contact
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact
+        - in: path
+          name: addressId # Sesuai dengan nama parameter di Express
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the address to retrieve
+      responses:
+        '200':
+          description: Address details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AddressResponse' # Menggunakan skema AddressResponse
+                  # paging: # Paging tidak ada di respons get address by ID
+        '404':
+          description: Address or Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Address
+      summary: Update address by ID for a contact
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact
+        - in: path
+          name: addressId # Sesuai dengan nama parameter di Express
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the address to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressUpdateRequest'
+      responses:
+        '200':
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AddressResponse' # Menggunakan skema AddressResponse
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Address or Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Address
+      summary: Delete address by ID for a contact
+      security:
+        - BearerAuth: [] # Diubah dari ApiKeyAuth ke BearerAuth
+      parameters:
+        - in: path
+          name: contact_id # Diubah dari contactId ke contact_id
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the contact
+        - in: path
+          name: addressId # Sesuai dengan nama parameter di Express
+          required: true
+          schema:
+            type: integer # Diubah dari string ke integer
+          description: ID of the address to delete
+      responses:
+        '200':
+          description: Address deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: OK
+        '404':
+          description: Address or Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth: # Diubah dari ApiKeyAuth ke BearerAuth
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # Menunjukkan format token adalah JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: string
+          example: "Validation Error: \"username\" is required"
+
+    UserRegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+        - name
+      properties:
+        username:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          example: john.doe
+        password:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          example: rahasia123
+        name:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          example: John Doe
+
+    UserLoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          example: john.doe
+        password:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          example: rahasia123
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          nullable: true # password bersifat opsional
+          example: passwordbaru
+        name:
+          type: string
+          maxLength: 100 # Disesuaikan dengan user-validation.js
+          nullable: true # name bersifat opsional
+          example: Johnathan Doe
+
+    ContactCreateRequest:
+      type: object
+      required:
+        - first_name # Disesuaikan dengan nama field di validasi dan database
+      properties:
+        first_name:
+          type: string
+          maxLength: 100 # Disesuaikan dengan validasi
+          example: Budi
+        last_name:
+          type: string
+          maxLength: 100 # Disesuaikan dengan validasi
+          nullable: true # Opsional
+          example: Santoso
+        email:
+          type: string
+          maxLength: 100 # Disesuaikan dengan validasi
+          format: email
+          nullable: true # Opsional
+          example: budi.santoso@example.com
+        phone:
+          type: string
+          maxLength: 20 # Disesuaikan dengan validasi
+          nullable: true # Opsional
+          example: "081234567890"
+
+    ContactUpdateRequest:
+      type: object
+      required:
+        - id # id wajib ada untuk update
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Contact ID
+        first_name:
+          type: string
+          maxLength: 100
+          nullable: true # Opsional untuk update
+          example: Budi
+        last_name:
+          type: string
+          maxLength: 100
+          nullable: true # Opsional
+          example: Santoso Baru
+        email:
+          type: string
+          maxLength: 100
+          format: email
+          nullable: true # Opsional
+          type: string
+          maxLength: 20
+
+    AddressResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        street:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        province:
+          type: string
+          nullable: true
+        country:
+          type: string
+        postalCode:
+          type: string
