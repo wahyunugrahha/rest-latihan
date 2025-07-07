@@ -19,6 +19,7 @@
   "dependencies": {
     "@prisma/client": "^6.10.1",
     "bcrypt": "^6.0.0",
+    "dotenv": "^17.0.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "swagger-jsdoc": "^6.2.8",
