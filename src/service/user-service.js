@@ -9,7 +9,9 @@ import {
 } from "../validation/user-validation.js";
 import { validate } from "../validation/validaton.js";
 import bcrypt from "bcrypt";
-import { v4 as uuid } from "uuid";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const register = async (request) => {
   const user = validate(registerUserValidation, request);
@@ -59,19 +61,14 @@ const login = async (request) => {
     throw new ResponseError(401, "Invalid Username or Password");
   }
 
-  const token = uuid().toString();
-
-  return prismaClient.user.update({
-    data: {
-      token: token,
-    },
-    where: {
-      username: user.username,
-    },
-    select: {
-      token: true,
-    },
+  const token = jwt.sign({ username: user.username }, JWT_SECRET, {
+    expiresIn: "1h",
   });
+
+  return {
+    username: user.username,
+    token: token,
+  };
 };
 
 const get = async (username) => {
@@ -139,17 +136,10 @@ const logout = async (username) => {
   if (!user) {
     throw new ResponseError(404, "User Not Found ");
   }
-  return prismaClient.user.update({
-    where: {
-      username: username,
-    },
-    data: {
-      token: null,
-    },
-    select: {
-      username: true,
-    },
-  });
+  return {
+    username: username,
+    message: "Logged out successfully",
+  };
 };
 
 export default {

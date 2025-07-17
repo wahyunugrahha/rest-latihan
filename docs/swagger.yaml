@@ -1,0 +1,839 @@
+openapi: 3.0.0
+info:
+  title: RESTful API Express
+  version: 1.0.0
+  description: Dokumentasi API untuk project RESTful API Express
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: User
+    description: User authentication and profile management
+  - name: Contact
+    description: Contact management
+  - name: Address
+    description: Address management for contacts
+
+paths:
+  /api/users:
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: test
+                      name:
+                        type: string
+                        example: test user
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/login:
+    post:
+      tags:
+        - User
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: test
+                      token:
+                        type: string
+                        description: JWT token for authentication
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE2NzgyOTQ0MDAsImV4cCI6MTY3ODI5ODAwMH0.example_token_string
+        '401':
+          description: Unauthorized (invalid username or password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/current:
+    get:
+      tags:
+        - User
+      summary: Get current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: test
+                      name:
+                        type: string
+                        example: testuser
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+        - User
+      summary: Update current user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: test
+                      name:
+                        type: string
+                        example: Updated User
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/logout:
+    delete:
+      tags:
+        - User
+      summary: Logout current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: OK
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts:
+    post:
+      tags:
+        - Contact
+      summary: Create a new contact
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreateRequest'
+      responses:
+        '200':
+          description: Contact created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Contact
+      summary: Search contacts
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Search by first_name or last_name
+        - in: query
+          name: email
+          schema:
+            type: string
+          description: Search by email
+        - in: query
+          name: phone
+          schema:
+            type: string
+          description: Search by phone number
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+      responses:
+        '200':
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContactResponse'
+                  paging:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      total_item:
+                        type: integer
+                        example: 15
+                      total_page:
+                        type: integer
+                        example: 2
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts/{contact_id}:
+    get:
+      tags:
+        - Contact
+      summary: Get contact by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact to retrieve
+      responses:
+        '200':
+          description: Contact details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Contact
+      summary: Update contact by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactUpdateRequest'
+      responses:
+        '200':
+          description: Contact updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Contact
+      summary: Delete contact by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact to delete
+      responses:
+        '200':
+          description: Contact deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: OK
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts/{contact_id}/addresses:
+    post:
+      tags:
+        - Address
+      summary: Create a new address for a contact
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact to add address to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressCreateRequest'
+      responses:
+        '200':
+          description: Address created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AddressResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Address
+      summary: Get all addresses for a contact
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact to retrieve addresses from
+      responses:
+        '200':
+          description: List of addresses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/contacts/{contact_id}/addresses/{addressId}:
+    get:
+      tags:
+        - Address
+      summary: Get address by ID for a contact
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact
+        - in: path
+          name: addressId
+          required: true
+          schema:
+            type: integer
+          description: ID of the address to retrieve
+      responses:
+        '200':
+          description: Address details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AddressResponse'
+        '404':
+          description: Address or Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Address
+      summary: Update address by ID for a contact
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact
+        - in: path
+          name: addressId
+          required: true
+          schema:
+            type: integer
+          description: ID of the address to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressUpdateRequest'
+      responses:
+        '200':
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AddressResponse'
+        '400':
+          description: Bad request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Address or Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Address
+      summary: Delete address by ID for a contact
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: contact_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the contact
+        - in: path
+          name: addressId
+          required: true
+          schema:
+            type: integer
+          description: ID of the address to delete
+      responses:
+        '200':
+          description: Address deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: OK
+        '404':
+          description: Address or Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: string
+          example: "Validation Error: \"username\" is required"
+
+    UserRegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+        - name
+      properties:
+        username:
+          type: string
+          maxLength: 100
+          example: john.doe
+        password:
+          type: string
+          maxLength: 100
+          example: rahasia123
+        name:
+          type: string
+          maxLength: 100
+          example: John Doe
+
+    UserLoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          maxLength: 100
+          example: john.doe
+        password:
+          type: string
+          maxLength: 100
+          example: rahasia123
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: passwordbaru
+        name:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: Johnathan Doe
+
+    ContactCreateRequest:
+      type: object
+      required:
+        - first_name
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+          example: Budi
+        last_name:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: Santoso
+        email:
+          type: string
+          maxLength: 100
+          format: email
+          nullable: true
+          example: budi.santoso@example.com
+        phone:
+          type: string
+          maxLength: 20
+          nullable: true
+          example: "081234567890"
+
+    ContactUpdateRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Contact ID
+        first_name:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: Budi
+        last_name:
+          type: string
+          maxLength: 100
+          nullable: true
+          example: Santoso Baru
+        email:
+          type: string
+          maxLength: 100
+          format: email
+          nullable: true
+          example: update@gmail.com
+        phone:
+          type: string
+          maxLength: 20
+          nullable: true
+          example: "08098764523"
+
+    ContactResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name: # Corrected from firstName
+          type: string
+        last_name: # Corrected from lastName
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+
+    AddressCreateRequest:
+      type: object
+      required:
+        - country
+        - postal_code # Corrected from postalCode
+      properties:
+        street:
+          type: string
+          maxLength: 256
+          nullable: true
+        city:
+          type: string
+          maxLength: 100
+          nullable: true
+        province:
+          type: string
+          maxLength: 100
+          nullable: true
+        country:
+          type: string
+          maxLength: 100
+        postal_code: # Corrected from postalCode
+          type: string
+          maxLength: 10
+
+    AddressUpdateRequest:
+      type: object
+      required:
+        - id
+        - country
+        - postal_code # Corrected from postalCode
+      properties:
+        id:
+          type: integer
+        street:
+          type: string
+          maxLength: 256
+          nullable: true
+        city:
+          type: string
+          maxLength: 100
+          nullable: true
+        province:
+          type: string
+          maxLength: 100
+          nullable: true
+        country:
+          type: string
+          maxLength: 100
+        postal_code: # Corrected from postalCode
+          type: string
+          maxLength: 10
+
+    AddressResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        street:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        province:
+          type: string
+          nullable: true
+        country:
+          type: string
+        postal_code: # Corrected from postalCode
+          type: string

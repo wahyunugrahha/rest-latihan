@@ -25,9 +25,3 @@ export {
   updateAddressValidation,
 };
 
-
-import { prismaClient } from "../application/database.js";
-
-afterAll(async () => {
-  await prismaClient.$disconnect();
-});
